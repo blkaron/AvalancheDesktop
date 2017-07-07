@@ -16,7 +16,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def initUI(self):
 
-        self.resize(1024, 768)
+        #self.resize(1024, 768)
         self.center()
         self.createActions()
         self.createMenus()
@@ -86,12 +86,8 @@ if __name__ == '__main__':
     avalancheDesktop = MainWindow()
     avalancheDesktop.show()
 
-    #cw = QtGui.QWidget()
-    #avalancheDesktop.setCentralWidget(cw)
-    #cw2 = QtGui.QWidget()
-    #l = QtGui.QHBoxLayout()
-    #cw.setLayout(l)
-
-    #pw = pg.PlotWidget(name='Plot1')  ## giving the plots names allows us to link their axes together
-    #l.addWidget(pw)
+    pw = pg.PlotWidget(name='SerialPortPlot')
+    pw.setLabel('left', 'Value', units='V')
+    pw.setLabel('bottom', 'Time', units='s')
+    avalancheDesktop.plotWidget.addWidget(pw)
     sys.exit(app.exec_())
