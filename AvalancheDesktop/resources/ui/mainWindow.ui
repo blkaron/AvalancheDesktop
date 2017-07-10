@@ -6,9 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
+    <width>1024</width>
     <height>600</height>
    </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
@@ -25,7 +31,7 @@
     </property>
     <layout class="QVBoxLayout" name="verticalLayout">
      <item>
-      <widget class="QPushButton" name="pushButton_4">
+      <widget class="QPushButton" name="open_file_btn">
        <property name="enabled">
         <bool>true</bool>
        </property>
@@ -47,7 +53,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButton">
+      <widget class="QPushButton" name="open_serial_com_btn">
        <property name="minimumSize">
         <size>
          <width>0</width>
@@ -82,9 +88,15 @@
      <rect>
       <x>180</x>
       <y>10</y>
-      <width>611</width>
+      <width>841</width>
       <height>531</height>
      </rect>
+    </property>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
     </property>
     <property name="frameShape">
      <enum>QFrame::Box</enum>
@@ -97,7 +109,7 @@
       <rect>
        <x>10</x>
        <y>10</y>
-       <width>581</width>
+       <width>821</width>
        <height>511</height>
       </rect>
      </property>
@@ -110,7 +122,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
+     <width>1024</width>
      <height>19</height>
     </rect>
    </property>
