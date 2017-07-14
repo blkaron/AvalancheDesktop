@@ -114,10 +114,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def stripped_name(self, fullFileName):
         return QFileInfo(fullFileName).fileName()
 
-    def save():
+    def save(self):
         pass
 
-    def save_as():
+    def save_as(self):
         pass
 
     def create_actions(self):
