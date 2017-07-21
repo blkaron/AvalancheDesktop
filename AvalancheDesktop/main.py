@@ -1,5 +1,7 @@
 import os
 import sys
+import serial
+import serial.tools.list_ports
 
 from resources import pyqtgraph as pg
 from PyQt5.QtGui import (QApplication, QKeySequence)
@@ -56,11 +58,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         pass
 
     def open_serial(self):
-        serialInfo = QSerialPortInfo.availablePorts()
-        for port in serialInfo:
-            pid = port.productIdentifier()
-            vid = port.vendorIdentifier()
-            print(pid,vid)
+        key_word = 'STM32'
+        ports = list(serial.tools.list_ports.comports())
+        for p in ports:
+            tmp_val = p.__dict__.get('description', None)
+            if tmp_val is not None and key_word in tmp_val.split():
+                print(p)
+                return p
+            else:
+                print('STM32 not found at any port, check connection')
 
     def open(self):
         if self.save_prompt():
