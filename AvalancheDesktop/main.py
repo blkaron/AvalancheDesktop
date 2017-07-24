@@ -90,20 +90,22 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         return True
 
     def load_file(self, fileName):
-        file = QFile(fileName)
-        if not file.open(QFile.ReadOnly | QFile.Text):
+        """
+        Load a csv file to display in pyqtgraph
+        """
+        data_file = QFile(fileName)
+        if not data_file.open(QFile.ReadOnly | QFile.Text):
             QMessageBox.warning(self, "Application",
-                    "Cannot read file %s:\n%s." % (fileName, file.errorString()))
+                    "Cannot read file %s:\n%s." % (fileName, data_file.errorString()))
             return False
 
-        inf = QTextStream(file)
+        inf = QTextStream(data_file)
         QApplication.setOverrideCursor(Qt.WaitCursor)
         self.textEdit.setPlainText(inf.readAll())
         QApplication.restoreOverrideCursor()
 
         self.set_current_file(fileName)
         self.statusInfoWidget.setText("File {} loaded successfully".format(fileName))
-        #self.statusBar().showMessage("File loaded", 2000)
 
     def set_current_file(self, fileName):
         self.curFile = fileName
@@ -111,14 +113,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setWindowModified(False)
 
         if self.curFile:
-            shownName = self.stripped_name(self.curFile)
+            shownName = QFileInfo(fileName).fileName()
         else:
             shownName = 'untitled.txt'
 
-        self.setWindowTitle("%s[*] - Application" % shownName)
-
-    def stripped_name(self, fullFileName):
-        return QFileInfo(fullFileName).fileName()
+        self.setWindowTitle("{}[*] - Avalanche Desktop".format(shownName))
 
     def save(self):
         pass
