@@ -25,6 +25,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # init functionality
         self.currentFile = ''
         self.textEdit = QTextEdit()
+        self.configure_serial_connection()
 
         # connect buttons
         self.open_file_btn.clicked.connect(self.open)
@@ -64,9 +65,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             tmp_val = p.__dict__.get('description', None)
             if tmp_val is not None and key_word in tmp_val.split():
                 print(p)
-                return p
-            else:
-                print('STM32 not found at any port, check connection')
+                print(p.__dict__)
+                stm32_port = p.__dict__.get('device', None) 
+                ser_port = serial.Serial()
+                print(ser_port)
+                #print(ser_port.read(10))  
+                break
+        else:
+            print('STM32 not found at any port, check connection')
 
     def open(self):
         if self.save_prompt():
@@ -139,6 +145,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.aboutQtAct = QAction("About &Qt", self, statusTip="Show the Qt library's About box",
                                triggered=QApplication.instance().aboutQt)
 
+
+     def configure_serial_connection(self):	
+        self.stm32_serial_port = serial.Serial()
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
