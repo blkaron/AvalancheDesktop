@@ -72,6 +72,12 @@
        <property name="text">
         <string>Open Serial Connection</string>
        </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
       </widget>
      </item>
      <item>
@@ -129,7 +135,7 @@
      <x>0</x>
      <y>0</y>
      <width>1100</width>
-     <height>26</height>
+     <height>19</height>
     </rect>
    </property>
   </widget>

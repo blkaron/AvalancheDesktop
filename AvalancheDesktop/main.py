@@ -1,4 +1,3 @@
-import os
 import sys
 import serial
 import serial.tools.list_ports
@@ -6,10 +5,8 @@ import serial.tools.list_ports
 from resources import pyqtgraph as pg
 from PyQt5.QtGui import (QApplication, QKeySequence)
 from PyQt5.QtWidgets import (QMainWindow, QTextEdit, QDesktopWidget,
-                             QFileDialog, QMessageBox, QAction, QLabel,
-                             QPushButton)
-from PyQt5.QtCore import (QFile, QTextStream, Qt, QFileInfo, QIODevice)
-from PyQt5.QtSerialPort import QSerialPort, QSerialPortInfo
+                             QFileDialog, QMessageBox, QAction, QLabel)
+from PyQt5.QtCore import (QFile, QTextStream, Qt, QFileInfo)
 
 from resources.ui.mainWindow import Ui_MainWindow
 
@@ -24,12 +21,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         # init functionality
         self.currentFile = ''
+        self.used_port = None
         self.textEdit = QTextEdit()
         self.configure_serial_connection()
 
         # connect buttons
         self.open_file_btn.clicked.connect(self.open)
-        self.open_serial_com_btn.clicked.connect(self.open_serial)
+        self.open_serial_com_btn.toggled.connect(self.open_close_serial)
 
     def initUI(self):
 
@@ -58,21 +56,26 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def new_file():
         pass
 
-    def open_serial(self):
+    def open_close_serial(self):
+        self.get_stm32_port_name()
+        if self.used_port is None:
+            print("Enter serial")
+            self.open_serial_com_btn.setText('Close Serial Connection')
+
+    def get_stm32_port_name(self):
         key_word = 'STM32'
         ports = list(serial.tools.list_ports.comports())
         for p in ports:
             tmp_val = p.__dict__.get('description', None)
             if tmp_val is not None and key_word in tmp_val.split():
-                print(p)
-                print(p.__dict__)
-                stm32_port = p.__dict__.get('device', None) 
-                ser_port = serial.Serial()
-                print(ser_port)
-                #print(ser_port.read(10))  
+                self.used_port = p.__dict__.get('device', None)
+                self.statusInfoWidget.setText("Opening serial port {} ".format(p))
                 break
         else:
-            print('STM32 not found at any port, check connection')
+            self.statusInfoWidget.setText("STM32 not found at any port, check connection")
+
+    def close_serial(self):
+        pass
 
     def open(self):
         if self.save_prompt():
@@ -145,8 +148,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.aboutQtAct = QAction("About &Qt", self, statusTip="Show the Qt library's About box",
                                triggered=QApplication.instance().aboutQt)
 
-
-     def configure_serial_connection(self):	
+    def configure_serial_connection(self):
         self.stm32_serial_port = serial.Serial()
 
 if __name__ == '__main__':
