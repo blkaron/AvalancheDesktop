@@ -34,6 +34,7 @@ class Ui_MainWindow(object):
         self.verticalLayout.addWidget(self.open_file_btn)
         self.open_serial_com_btn = QtWidgets.QPushButton(self.verticalLayoutWidget)
         self.open_serial_com_btn.setMinimumSize(QtCore.QSize(0, 44))
+        self.open_serial_com_btn.setStyleSheet("QPushButton:checked {background-color: #A3C1DA; color: red;}")
         self.open_serial_com_btn.setCheckable(True)
         self.open_serial_com_btn.setChecked(False)
         self.open_serial_com_btn.setObjectName("open_serial_com_btn")

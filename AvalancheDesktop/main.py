@@ -60,8 +60,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.get_stm32_port_name()
         if self.used_port is not None and self.open_serial_com_btn.isChecked():
             self.open_serial()
-        else:
+        elif self.used_port is not None and not self.open_serial_com_btn.isChecked():
             self.close_serial()
+        else:
+            self.open_serial_com_btn.setStyleSheet("")
+            self.open_serial_com_btn.setChecked(False)
+            self.statusInfoWidget.setText("STM32 not found at any port, check connection")
 
     def get_stm32_port_name(self):
         key_word = 'STM32'
@@ -72,20 +76,22 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.used_port = p.__dict__.get('device', None)
                 self.statusInfoWidget.setText("Opening serial port {} ".format(p))
                 break
-        else:
-            self.statusInfoWidget.setText("STM32 not found at any port, check connection")
 
     def open_serial(self):
+        self.open_serial_com_btn.setStyleSheet("QPushButton:checked {background-color: #A3C1DA; color: red;}")
         self.open_serial_com_btn.setText('Close Serial Connection')
         self.stm32_serial_port.baudrate = 9600
         self.stm32_serial_port.port = self.used_port
         self.stm32_serial_port.open()
-        print(self.stm32_serial_port.read(10))
+
+        data = self.stm32_serial_port.read()
+        print(int.from_bytes(data, byteorder='big'))
 
     def close_serial(self):
+        self.stm32_serial_port.close()
         self.statusInfoWidget.setText("Closed serial port")
         self.open_serial_com_btn.setText('Open Serial Connection')
-        self.stm32_serial_port.close()
+        self.open_serial_com_btn.setStyleSheet("")
 
     def open(self):
         if self.save_prompt():
