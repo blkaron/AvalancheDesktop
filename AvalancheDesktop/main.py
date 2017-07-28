@@ -22,12 +22,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # init functionality
         self.currentFile = ''
         self.used_port = None
+        self.stm32_serial_port = serial.Serial()
         self.textEdit = QTextEdit()
-        self.configure_serial_connection()
 
         # connect buttons
         self.open_file_btn.clicked.connect(self.open)
-        self.open_serial_com_btn.toggled.connect(self.open_close_serial)
+        self.open_serial_com_btn.toggled.connect(self.toggle_serial)
 
     def initUI(self):
 
@@ -56,11 +56,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def new_file():
         pass
 
-    def open_close_serial(self):
+    def toggle_serial(self):
         self.get_stm32_port_name()
-        if self.used_port is None:
-            print("Enter serial")
-            self.open_serial_com_btn.setText('Close Serial Connection')
+        if self.used_port is not None and self.open_serial_com_btn.isChecked():
+            self.open_serial()
+        else:
+            self.close_serial()
 
     def get_stm32_port_name(self):
         key_word = 'STM32'
@@ -74,8 +75,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         else:
             self.statusInfoWidget.setText("STM32 not found at any port, check connection")
 
+    def open_serial(self):
+        self.open_serial_com_btn.setText('Close Serial Connection')
+        self.stm32_serial_port.baudrate = 9600
+        self.stm32_serial_port.port = self.used_port
+        self.stm32_serial_port.open()
+        print(self.stm32_serial_port.read(10))
+
     def close_serial(self):
-        pass
+        self.statusInfoWidget.setText("Closed serial port")
+        self.open_serial_com_btn.setText('Open Serial Connection')
+        self.stm32_serial_port.close()
 
     def open(self):
         if self.save_prompt():
@@ -148,8 +158,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.aboutQtAct = QAction("About &Qt", self, statusTip="Show the Qt library's About box",
                                triggered=QApplication.instance().aboutQt)
 
-    def configure_serial_connection(self):
-        self.stm32_serial_port = serial.Serial()
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
