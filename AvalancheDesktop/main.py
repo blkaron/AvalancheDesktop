@@ -3,31 +3,37 @@ import serial
 import serial.tools.list_ports
 
 from resources import pyqtgraph as pg
+from resources.ui.mainWindow import Ui_MainWindow
+
+from stm32serial import SerialThread
+
 from PyQt5.QtGui import (QApplication, QKeySequence)
 from PyQt5.QtWidgets import (QMainWindow, QTextEdit, QDesktopWidget,
                              QFileDialog, QMessageBox, QAction, QLabel)
 from PyQt5.QtCore import (QFile, QTextStream, Qt, QFileInfo)
-
-from resources.ui.mainWindow import Ui_MainWindow
 
 
 class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self):
         super().__init__()
 
+        self.baudrate = 9600
+        self.used_port = None
+
         # init UI
         self.setupUi(self)
         self.initUI()
+        self.serialThread = SerialThread(self.baudrate)
 
         # init functionality
         self.currentFile = ''
         self.used_port = None
-        self.stm32_serial_port = serial.Serial()
         self.textEdit = QTextEdit()
 
         # connect buttons
         self.open_file_btn.clicked.connect(self.open)
         self.open_serial_com_btn.toggled.connect(self.toggle_serial)
+        self.serialThread.readLineSignal.connect(self.print_data)
 
     def initUI(self):
 
@@ -80,15 +86,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def open_serial(self):
         self.open_serial_com_btn.setStyleSheet("QPushButton:checked {background-color: #A3C1DA; color: red;}")
         self.open_serial_com_btn.setText('Close Serial Connection')
-        self.stm32_serial_port.baudrate = 9600
-        self.stm32_serial_port.port = self.used_port
-        self.stm32_serial_port.open()
+        self.serialThread.used_port = self.used_port
+        self.serialThread.start()
 
-        data = self.stm32_serial_port.read()
+    def print_data(self, data):
         print(int.from_bytes(data, byteorder='big'))
 
     def close_serial(self):
-        self.stm32_serial_port.close()
+        self.serialThread.isRunning = False
+        self.serialThread.quit()
         self.statusInfoWidget.setText("Closed serial port")
         self.open_serial_com_btn.setText('Open Serial Connection')
         self.open_serial_com_btn.setStyleSheet("")
