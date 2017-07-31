@@ -21,6 +21,7 @@ class SerialThread(QThread):
                 self.serial_port.close()
             self.serial_port = serial.Serial(port=self.used_port,
                                              baudrate=self.baudrate)
+            self.isRunning = True
         except serial.SerialException as e:
             print(e)
             return
