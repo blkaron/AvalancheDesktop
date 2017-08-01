@@ -90,7 +90,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.serialThread.start()
 
     def print_data(self, data):
-        print(int.from_bytes(data, byteorder='big'))
+        __x = [i for i in range(len(data))]
+        pw.clear()
+        pw.plot(__x, data, pen='r')
 
     def close_serial(self):
         self.serialThread.isRunning = False
@@ -179,5 +181,6 @@ if __name__ == '__main__':
     pw = pg.PlotWidget(name='SerialPortPlot')
     pw.setLabel('left', 'Value', units='V')
     pw.setLabel('bottom', 'Time', units='s')
+    pw.showGrid(True, True)
     avalancheDesktop.plotWidget.addWidget(pw)
     sys.exit(app.exec_())

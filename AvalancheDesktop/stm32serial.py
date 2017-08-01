@@ -4,7 +4,7 @@ from PyQt5.QtCore import (QThread, pyqtSignal)
 
 class SerialThread(QThread):
 
-    readLineSignal = pyqtSignal(bytes)
+    readLineSignal = pyqtSignal(list)
 
     def __init__(self, baudrate=9600, used_port=None, isRunning=True):
         super().__init__()
@@ -26,8 +26,12 @@ class SerialThread(QThread):
             print(e)
             return
 
+        data_arr = []
         while self.isRunning:
-            data = self.serial_port.read()
-            self.readLineSignal.emit(data)
+            if len(data_arr) <= self.baudrate / 10:
+                data_arr.append(int.from_bytes(self.serial_port.read(), byteorder='big'))
+            else:
+                self.readLineSignal.emit(data_arr)
+                data_arr = []
 
         self.serial_port.close()
