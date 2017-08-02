@@ -90,9 +90,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.serialThread.start()
 
     def print_data(self, data):
-        __x = [i for i in range(len(data))]
-        pw.clear()
-        pw.plot(__x, data, pen='r')
+        __x = [t[0] for t in data]
+        __y = [t[1] for t in data]
+        pw.setXRange(__x[0], __x[-1])
+        pw.plot(__x, __y, clear=True, pen='r')
 
     def close_serial(self):
         self.serialThread.isRunning = False

@@ -1,4 +1,5 @@
 import serial
+from time import time
 from PyQt5.QtCore import (QThread, pyqtSignal)
 
 
@@ -6,7 +7,7 @@ class SerialThread(QThread):
 
     readLineSignal = pyqtSignal(list)
 
-    def __init__(self, baudrate=9600, used_port=None, isRunning=True):
+    def __init__(self, baudrate=9600, used_port=None, isRunning=False):
         super().__init__()
 
         self.baudrate = baudrate
@@ -22,6 +23,7 @@ class SerialThread(QThread):
             self.serial_port = serial.Serial(port=self.used_port,
                                              baudrate=self.baudrate)
             self.isRunning = True
+            start_timestamp = time()
         except serial.SerialException as e:
             print(e)
             return
@@ -29,7 +31,8 @@ class SerialThread(QThread):
         data_arr = []
         while self.isRunning:
             if len(data_arr) <= self.baudrate / 10:
-                data_arr.append(int.from_bytes(self.serial_port.read(), byteorder='big'))
+                data_arr.append(((time() - start_timestamp),
+                                int.from_bytes(self.serial_port.read(), byteorder='big')))
             else:
                 self.readLineSignal.emit(data_arr)
                 data_arr = []
