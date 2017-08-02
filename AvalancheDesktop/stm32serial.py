@@ -4,7 +4,10 @@ from PyQt5.QtCore import (QThread, pyqtSignal)
 
 
 class SerialThread(QThread):
-
+    """
+    A separate thread to handle communication with STM32 virtual com port
+    for reading data and issuing start/stop commands
+    """
     readLineSignal = pyqtSignal(list)
 
     def __init__(self, baudrate=9600, used_port=None, isRunning=False):
@@ -38,3 +41,7 @@ class SerialThread(QThread):
                 data_arr = []
 
         self.serial_port.close()
+
+
+
+

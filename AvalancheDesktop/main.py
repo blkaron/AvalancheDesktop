@@ -1,7 +1,9 @@
+import os
 import sys
 import serial
 import serial.tools.list_ports
 
+from datetime import datetime
 from resources import pyqtgraph as pg
 from resources.ui.mainWindow import Ui_MainWindow
 
@@ -10,7 +12,7 @@ from stm32serial import SerialThread
 from PyQt5.QtGui import (QApplication, QKeySequence)
 from PyQt5.QtWidgets import (QMainWindow, QTextEdit, QDesktopWidget,
                              QFileDialog, QMessageBox, QAction, QLabel)
-from PyQt5.QtCore import (QFile, QTextStream, Qt, QFileInfo)
+from PyQt5.QtCore import (QFile, QTextStream, Qt, QFileInfo, QIODevice)
 
 
 class MainWindow(QMainWindow, Ui_MainWindow):
@@ -86,6 +88,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def open_serial(self):
         self.open_serial_com_btn.setStyleSheet("QPushButton:checked {background-color: #A3C1DA; color: red;}")
         self.open_serial_com_btn.setText('Close Serial Connection')
+        self.write_to_file()
         self.serialThread.used_port = self.used_port
         self.serialThread.start()
 
@@ -94,10 +97,36 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         __y = [t[1] for t in data]
         pw.setXRange(__x[0], __x[-1])
         pw.plot(__x, __y, clear=True, pen='r')
+        for entry, d_byte in enumerate(data):
+            self.text_stream << entry << ",\t" << d_byte[0] << ",\t" << d_byte[1] << "\n"
+
+    def write_to_file(self):
+        """
+        Automatically save data to a .csv file
+
+        dir_name  - get current working directory
+        file_name - the current time is taken for the name of the file
+        file_ext  - let this be a .csv for now
+
+        """
+        dir_name = os.getcwd()
+        file_name = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+        file_ext = ".csv"
+
+        full_name = dir_name + "-" + file_name
+
+        if QFile(full_name + file_ext).exists():
+            self.currentFile = QFile(full_name + '01' + file_ext)
+        else:
+            self.currentFile = QFile(full_name + file_ext)
+
+        self.currentFile.open(QIODevice.WriteOnly)
+        self.text_stream = QTextStream(self.currentFile)
 
     def close_serial(self):
         self.serialThread.isRunning = False
         self.serialThread.quit()
+        self.currentFile.close()
         self.statusInfoWidget.setText("Closed serial port")
         self.open_serial_com_btn.setText('Open Serial Connection')
         self.open_serial_com_btn.setStyleSheet("")
@@ -125,7 +154,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def load_file(self, fileName):
         """
-        Load a csv file to display in pyqtgraph
+        Load a file to display in pyqtgraph
         """
         data_file = QFile(fileName)
         if not data_file.open(QFile.ReadOnly | QFile.Text):
