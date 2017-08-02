@@ -58,7 +58,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.fileMenu.addAction(self.openAct)
         self.fileMenu.addAction(self.saveAct)
         self.fileMenu.addAction(self.saveAsAct)
-        self.fileMenu.addAction(self.aboutQtAct)
         self.fileMenu.addAction(self.exitAct)
 
     def new_file():
@@ -199,9 +198,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                                statusTip="Save the document to disk", triggered=self.save)
         self.saveAsAct = QAction("Save &As...", self, shortcut=QKeySequence.SaveAs,
                                statusTip="Save the document under a new name", triggered=self.save_as)
-        self.aboutQtAct = QAction("About &Qt", self, statusTip="Show the Qt library's About box",
-                               triggered=QApplication.instance().aboutQt)
-
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
