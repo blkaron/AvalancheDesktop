@@ -75,11 +75,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.statusInfoWidget.setText("STM32 not found at any port, check connection")
 
     def get_stm32_port_name(self):
-        key_word = 'STM32'
+        key_word = {'ubuntu': 'STM32', 'win': 'STMicroelectronics'}
         ports = list(serial.tools.list_ports.comports())
         for p in ports:
             tmp_val = p.__dict__.get('description', None)
-            if tmp_val is not None and key_word in tmp_val.split():
+            if tmp_val is not None and key_word['ubuntu'] in tmp_val.split() or key_word['windows'] in tmp_val.split():
+                print(p.__dict__)
                 self.used_port = p.__dict__.get('device', None)
                 self.statusInfoWidget.setText("Opening serial port {} ".format(p))
                 break
