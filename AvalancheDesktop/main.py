@@ -34,7 +34,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # connect buttons
         self.open_file_btn.clicked.connect(self.open)
         self.open_serial_com_btn.toggled.connect(self.toggle_serial)
-        self.serialThread.readLineSignal.connect(self.print_data)
+        self.serialThread.readLineSignal.connect(self.display_data)
 
     def initUI(self):
 
@@ -58,8 +58,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.fileMenu.addAction(self.exitAct)
 
     def toggle_serial(self):
-        self.get_stm32_port_name()
-        if self.used_port is not None and self.open_serial_com_btn.isChecked():
+        """
+        Start/Stop serial communication and restore button state
+
+        """
+        if self.open_serial_com_btn.isChecked():
+            self.get_stm32_port_name()
             self.open_serial()
         elif self.used_port is not None and not self.open_serial_com_btn.isChecked():
             self.close_serial()
@@ -69,24 +73,35 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.statusInfoWidget.setText("STM32 not found at any port, check connection")
 
     def get_stm32_port_name(self):
+        """
+        Get the serial port name which SMT32 is linked to
+
+        """
         key_word = {'ubuntu': 'STM32', 'win': 'STMicroelectronics'}
         ports = list(serial.tools.list_ports.comports())
         for p in ports:
             tmp_val = p.__dict__.get('description', None)
             if tmp_val is not None and key_word['ubuntu'] in tmp_val.split() or key_word['windows'] in tmp_val.split():
-                print(p.__dict__)
                 self.used_port = p.__dict__.get('device', None)
                 self.statusInfoWidget.setText("Opening serial port {} ".format(p))
                 break
 
     def open_serial(self):
+        """
+        Open serial port and start reading data
+
+        """
         self.open_serial_com_btn.setStyleSheet("QPushButton:checked {background-color: #A3C1DA; color: red;}")
         self.open_serial_com_btn.setText('Close Serial Connection')
         self.write_to_file()
         self.serialThread.used_port = self.used_port
         self.serialThread.start()
 
-    def print_data(self, data, save_to_file=True):
+    def display_data(self, data, save_to_file=True):
+        """
+        Display data and save to file if requested
+
+        """
         __x = [t[0] for t in data]
         __y = [t[1] for t in data]
         pw.setXRange(__x[0], __x[-1])
@@ -131,6 +146,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.open_serial_com_btn.setStyleSheet("")
 
     def open(self):
+        """
+        Open file
+
+        """
         file_name, _ = QFileDialog.getOpenFileName(self)
         if file_name:
             self.load_file(file_name)
@@ -152,13 +171,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             tmp_data_line = data.readLine().split(",")
             self.read_file_data.append((float(tmp_data_line[1].lstrip("\t")),
                                         int(tmp_data_line[2].lstrip("\t"))))
-        self.print_data(self.read_file_data, save_to_file=False)
+        self.display_data(self.read_file_data, save_to_file=False)
         QApplication.restoreOverrideCursor()
 
         self.set_current_file(file_name)
         self.statusInfoWidget.setText("File {} loaded successfully".format(file_name))
 
     def set_current_file(self, file_name):
+        """
+        Set the current opened filename in the footer
+
+        """
         self.curFile = file_name
         self.setWindowModified(False)
 
