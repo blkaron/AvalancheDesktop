@@ -54,14 +54,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def create_menus(self):
         self.fileMenu = self.menuBar().addMenu("&File")
-        self.fileMenu.addAction(self.newAct)
         self.fileMenu.addAction(self.openAct)
         self.fileMenu.addAction(self.saveAct)
         self.fileMenu.addAction(self.saveAsAct)
         self.fileMenu.addAction(self.exitAct)
-
-    def new_file():
-        pass
 
     def toggle_serial(self):
         self.get_stm32_port_name()
@@ -191,8 +187,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def create_actions(self):
         self.exitAct = QAction("&Exit", self, shortcut="Ctrl+Q",
                                statusTip="Exit the application", triggered=self.close)
-        self.newAct = QAction("&New", self, shortcut=QKeySequence.New,
-                               statusTip="Create a new file", triggered=self.new_file)
         self.openAct = QAction("&Open...", self, shortcut=QKeySequence.Open,
                                statusTip="Open an existing file", triggered=self.open)
         self.saveAct = QAction("&Save", self, shortcut=QKeySequence.Save,
