@@ -27,10 +27,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.initUI()
         self.serialThread = SerialThread(self.baudrate)
 
-        # init functionality
-        self.currentFile = ''
-        self.used_port = None
-        self.textEdit = QTextEdit()
+        # init program data
+        self.current_file = ''
+        self.read_file_data = []
 
         # connect buttons
         self.open_file_btn.clicked.connect(self.open)
@@ -55,7 +54,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def create_menus(self):
         self.fileMenu = self.menuBar().addMenu("&File")
         self.fileMenu.addAction(self.openAct)
-        self.fileMenu.addAction(self.saveAct)
         self.fileMenu.addAction(self.saveAsAct)
         self.fileMenu.addAction(self.exitAct)
 
@@ -88,13 +86,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.serialThread.used_port = self.used_port
         self.serialThread.start()
 
-    def print_data(self, data):
+    def print_data(self, data, save_to_file=True):
         __x = [t[0] for t in data]
         __y = [t[1] for t in data]
         pw.setXRange(__x[0], __x[-1])
         pw.plot(__x, __y, clear=True, pen='r')
-        for entry, d_byte in enumerate(data):
-            self.text_stream << entry << ",\t" << d_byte[0] << ",\t" << d_byte[1] << "\n"
+        if save_to_file:
+            for entry, d_byte in enumerate(data):
+                self.text_stream << entry << ",\t" << d_byte[0] << ",\t" << d_byte[1] << "\n"
 
     def write_to_file(self):
         """
@@ -112,74 +111,63 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         full_name = dir_name + "-" + file_name
 
         if QFile(full_name + file_ext).exists():
-            self.currentFile = QFile(full_name + '01' + file_ext)
+            self.current_file = QFile(full_name + '01' + file_ext)
         else:
-            self.currentFile = QFile(full_name + file_ext)
+            self.current_file = QFile(full_name + file_ext)
 
-        self.currentFile.open(QIODevice.WriteOnly)
-        self.text_stream = QTextStream(self.currentFile)
+        self.current_file.open(QIODevice.WriteOnly)
+        self.text_stream = QTextStream(self.current_file)
 
     def close_serial(self):
+        """
+        Close serial connection and reset button state
+
+        """
         self.serialThread.isRunning = False
         self.serialThread.quit()
-        self.currentFile.close()
+        self.current_file.close()
         self.statusInfoWidget.setText("Closed serial port")
         self.open_serial_com_btn.setText('Open Serial Connection')
         self.open_serial_com_btn.setStyleSheet("")
 
     def open(self):
-        if self.save_prompt():
-            fileName, _ = QFileDialog.getOpenFileName(self)
-            if fileName:
-                self.load_file(fileName)
+        file_name, _ = QFileDialog.getOpenFileName(self)
+        if file_name:
+            self.load_file(file_name)
 
-    def save_prompt(self):
-        if self.textEdit.document().isModified():
-            ret = QMessageBox.warning(self, "Application",
-                    "The document has been modified.\nDo you want to save "
-                    "your changes?",
-                    QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel)
-
-            if ret == QMessageBox.Save:
-                return self.save()
-
-            if ret == QMessageBox.Cancel:
-                return False
-
-        return True
-
-    def load_file(self, fileName):
+    def load_file(self, file_name):
         """
         Load a file to display in pyqtgraph
         """
-        data_file = QFile(fileName)
+        data_file = QFile(file_name)
         if not data_file.open(QFile.ReadOnly | QFile.Text):
             QMessageBox.warning(self, "Application",
-                    "Cannot read file %s:\n%s." % (fileName, data_file.errorString()))
+                    "Cannot read file %s:\n%s." % (file_name, data_file.errorString()))
             return False
 
-        inf = QTextStream(data_file)
         QApplication.setOverrideCursor(Qt.WaitCursor)
-        self.textEdit.setPlainText(inf.readAll())
+        data = QTextStream(data_file)
+
+        while not data.atEnd():
+            tmp_data_line = data.readLine().split(",")
+            self.read_file_data.append((float(tmp_data_line[1].lstrip("\t")),
+                                        int(tmp_data_line[2].lstrip("\t"))))
+        self.print_data(self.read_file_data, save_to_file=False)
         QApplication.restoreOverrideCursor()
 
-        self.set_current_file(fileName)
-        self.statusInfoWidget.setText("File {} loaded successfully".format(fileName))
+        self.set_current_file(file_name)
+        self.statusInfoWidget.setText("File {} loaded successfully".format(file_name))
 
-    def set_current_file(self, fileName):
-        self.curFile = fileName
-        self.textEdit.document().setModified(False)
+    def set_current_file(self, file_name):
+        self.curFile = file_name
         self.setWindowModified(False)
 
         if self.curFile:
-            shownName = QFileInfo(fileName).fileName()
+            shownName = QFileInfo(file_name).fileName()
         else:
             shownName = 'untitled.txt'
 
         self.setWindowTitle("{}[*] - Avalanche Desktop".format(shownName))
-
-    def save(self):
-        pass
 
     def save_as(self):
         pass
@@ -189,10 +177,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                                statusTip="Exit the application", triggered=self.close)
         self.openAct = QAction("&Open...", self, shortcut=QKeySequence.Open,
                                statusTip="Open an existing file", triggered=self.open)
-        self.saveAct = QAction("&Save", self, shortcut=QKeySequence.Save,
-                               statusTip="Save the document to disk", triggered=self.save)
         self.saveAsAct = QAction("Save &As...", self, shortcut=QKeySequence.SaveAs,
                                statusTip="Save the document under a new name", triggered=self.save_as)
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
