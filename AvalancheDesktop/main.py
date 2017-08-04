@@ -108,7 +108,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         pw.plot(__x, __y, clear=True, pen='r')
         if save_to_file:
             for entry, d_byte in enumerate(data):
-                self.text_stream << entry << ",\t" << d_byte[0] << ",\t" << d_byte[1] << "\n"
+                self.text_stream << entry << ",\t" << d_byte[2] << ",\t" << d_byte[0] << ",\t" << d_byte[1] << "\n"
 
     def write_to_file(self):
         """

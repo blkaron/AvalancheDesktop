@@ -1,5 +1,5 @@
 import serial
-from time import time
+from time import time, gmtime, strftime
 from PyQt5.QtCore import (QThread, pyqtSignal)
 
 
@@ -35,7 +35,8 @@ class SerialThread(QThread):
         while self.isRunning:
             if len(data_arr) <= self.baudrate / 10:
                 data_arr.append(((time() - start_timestamp),
-                                int.from_bytes(self.serial_port.read(), byteorder='big')))
+                                 int.from_bytes(self.serial_port.read(), byteorder='big'),
+                                 strftime("%H:%M:%S", gmtime())))
             else:
                 self.readLineSignal.emit(data_arr)
                 data_arr = []
