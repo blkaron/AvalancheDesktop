@@ -169,8 +169,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         while not data.atEnd():
             tmp_data_line = data.readLine().split(",")
-            self.read_file_data.append((float(tmp_data_line[1].lstrip("\t")),
-                                        int(tmp_data_line[2].lstrip("\t"))))
+            self.read_file_data.append((float(tmp_data_line[2].lstrip("\t")),
+                                        int(tmp_data_line[3].lstrip("\t"))))
         self.display_data(self.read_file_data, save_to_file=False)
         QApplication.restoreOverrideCursor()
 
