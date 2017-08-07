@@ -102,13 +102,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         Display data and save to file if requested
 
         """
-        __x = [t[0] for t in data]
-        __y = [t[1] for t in data]
+        __x = [t[1] for t in data]
+        __y = [t[2] for t in data]
         pw.setXRange(__x[0], __x[-1])
         pw.plot(__x, __y, clear=True, pen='r')
         if save_to_file:
             for entry, d_byte in enumerate(data):
-                self.text_stream << entry << ",\t" << d_byte[2] << ",\t" << d_byte[0] << ",\t" << d_byte[1] << "\n"
+                self.text_stream << entry << ",\t" << d_byte[0] << ",\t" << d_byte[1] << ",\t" << d_byte[2] << "\n"
 
     def write_to_file(self):
         """
@@ -150,7 +150,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         Open file
 
         """
-        file_name, _ = QFileDialog.getOpenFileName(self)
+        file_name, _ = QFileDialog.getOpenFileName(self, "Open data file", "", "CSV data files (*.csv)")
         if file_name:
             self.load_file(file_name)
 
@@ -169,7 +169,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         while not data.atEnd():
             tmp_data_line = data.readLine().split(",")
-            self.read_file_data.append((float(tmp_data_line[2].lstrip("\t")),
+            self.read_file_data.append((tmp_data_line[1].lstrip("\t"), float(tmp_data_line[2].lstrip("\t")),
                                         int(tmp_data_line[3].lstrip("\t"))))
         self.display_data(self.read_file_data, save_to_file=False)
         QApplication.restoreOverrideCursor()
@@ -182,10 +182,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         Set the current opened filename in the footer
 
         """
-        self.curFile = file_name
+        footer_file = file_name
         self.setWindowModified(False)
 
-        if self.curFile:
+        if footer_file:
             shownName = QFileInfo(file_name).fileName()
         else:
             shownName = 'untitled.txt'

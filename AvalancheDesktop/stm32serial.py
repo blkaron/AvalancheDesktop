@@ -34,9 +34,9 @@ class SerialThread(QThread):
         data_arr = []
         while self.isRunning:
             if len(data_arr) <= self.baudrate / 10:
-                data_arr.append(((time() - start_timestamp),
+                data_arr.append((strftime("%H:%M:%S", gmtime()), (time() - start_timestamp),
                                  int.from_bytes(self.serial_port.read(), byteorder='big'),
-                                 strftime("%H:%M:%S", gmtime())))
+                                 ))
             else:
                 self.readLineSignal.emit(data_arr)
                 data_arr = []
