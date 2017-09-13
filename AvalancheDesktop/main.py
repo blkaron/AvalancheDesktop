@@ -10,8 +10,8 @@ from resources.ui.mainWindow import Ui_MainWindow
 from stm32serial import SerialThread
 
 from PyQt5.QtGui import (QApplication, QKeySequence)
-from PyQt5.QtWidgets import (QMainWindow, QTextEdit, QDesktopWidget,
-                             QFileDialog, QMessageBox, QAction, QLabel)
+from PyQt5.QtWidgets import (QMainWindow, QDesktopWidget, QFileDialog,
+                             QMessageBox, QAction, QLabel)
 from PyQt5.QtCore import (QFile, QTextStream, Qt, QFileInfo, QIODevice)
 
 
@@ -21,11 +21,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.baudrate = 9600
         self.used_port = None
+        self.acquisition_time = 1000
 
         # init UI
         self.setupUi(self)
         self.initUI()
-        self.serialThread = SerialThread(self.baudrate)
+        self.serialThread = SerialThread(self.baudrate, self.acquisition_time)
 
         # init program data
         self.current_file = ''
